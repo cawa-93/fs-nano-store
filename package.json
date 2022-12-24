@@ -4,7 +4,6 @@
   "description": "A simple, super minimalistic data store on a file system with zero dependencies and TypeScript support",
   "type": "module",
   "main": "dist/index.js",
-  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts --splitting --clean",
