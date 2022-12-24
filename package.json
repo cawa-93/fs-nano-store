@@ -1,6 +1,6 @@
 {
   "name": "fs-nano-store",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A simple, super minimalistic data store on a file system with zero dependencies and TypeScript support",
   "type": "module",
   "main": "dist/index.js",
