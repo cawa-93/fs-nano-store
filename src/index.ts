@@ -4,9 +4,16 @@ import {EventEmitter} from "node:events";
 
 type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
 
-export type TNanoStore = Record<string, Json>
+export type TNanoStoreData = Record<string, Json>
+export type TNanoStore<TStore extends TNanoStoreData> = {
+    get<TKey extends keyof TStore>(key: TKey): TStore[TKey]
+    set<TKey extends keyof TStore>(key: TKey, value: TStore[TKey]): Promise<void>
+    changes: EventEmitter
+}
 
-function loadFromFs<TStore extends TNanoStore>(filePath: string): Promise<TStore> {
+
+
+function loadFromFs<TStore extends TNanoStoreData>(filePath: string): Promise<TStore> {
     return readFile(filePath, {encoding: 'utf8'})
         .then((c: string) => c.trim() ? JSON.parse(c) : ({}))
         .catch((e: unknown) => {
@@ -19,7 +26,7 @@ function loadFromFs<TStore extends TNanoStore>(filePath: string): Promise<TStore
 }
 
 
-export async function defineStore<TStore extends TNanoStore>(filePath: string) {
+export async function defineStore<TStore extends TNanoStoreData>(filePath: string): Promise<TNanoStore<TStore>> {
     let _cachedStore: TStore = await loadFromFs<TStore>(filePath)
     const changesEventEmitter = new EventEmitter()
 
@@ -51,3 +58,9 @@ export async function defineStore<TStore extends TNanoStore>(filePath: string) {
         changes: changesEventEmitter,
     }
 }
+
+type UserStore = {
+    role: 'admin' | 'user'
+}
+
+defineStore<UserStore>('')
