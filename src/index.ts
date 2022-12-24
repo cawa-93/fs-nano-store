@@ -2,7 +2,11 @@ import {readFile, writeFile} from "node:fs/promises";
 import {unwatchFile, watchFile} from 'node:fs'
 import {EventEmitter} from "node:events";
 
-function loadFromFs<TStore extends Record<any, any>>(filePath: string): Promise<TStore> {
+type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
+
+export type TNanoStore = Record<string, Json>
+
+function loadFromFs<TStore extends TNanoStore>(filePath: string): Promise<TStore> {
     return readFile(filePath, {encoding: 'utf8'})
         .then((c: string) => c.trim() ? JSON.parse(c) : ({}))
         .catch((e: unknown) => {
@@ -15,7 +19,7 @@ function loadFromFs<TStore extends Record<any, any>>(filePath: string): Promise<
 }
 
 
-export async function defineStore<TStore extends Record<any, any>>(filePath: string) {
+export async function defineStore<TStore extends TNanoStore>(filePath: string) {
     let _cachedStore: TStore = await loadFromFs<TStore>(filePath)
     const changesEventEmitter = new EventEmitter()
 
