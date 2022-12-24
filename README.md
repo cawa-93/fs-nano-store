@@ -15,7 +15,7 @@ import {defineStore} from "fs-nano-store";
 /**
  * Declare types for you storage
  */
-interface Store {
+type Store = {
     name: string,
     role: 'admin' | 'user'
 }
