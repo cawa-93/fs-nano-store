@@ -11,11 +11,19 @@
     "dev": "tsup src/index.ts --format cjs,esm --dts --splitting --clean --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "filesystem",
+    "store"
+  ],
   "author": {
     "email": "kozackunisoft@gmail.com",
     "name": "Alex Kozack",
     "url": "https://kozack.me"
+  },
+  "repository": "github:cawa-93/fs-nano-store",
+  "homepage": "https://github.com/cawa-93/fs-nano-store#readme",
+  "bugs": {
+    "url": "https://github.com/cawa-93/fs-nano-store/issues"
   },
   "exports": {
     ".": {
