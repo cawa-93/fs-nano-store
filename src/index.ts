@@ -58,9 +58,3 @@ export async function defineStore<TStore extends TNanoStoreData>(filePath: strin
         changes: changesEventEmitter,
     }
 }
-
-type UserStore = {
-    role: 'admin' | 'user'
-}
-
-defineStore<UserStore>('')
