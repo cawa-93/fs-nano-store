@@ -5,7 +5,7 @@
 # Nano filesystem storage
 <a href="https://www.buymeacoffee.com/kozack" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" height="60" alt="Buy Me A Coffee"></a>
 
-A simple, super minimalistic data store on a file system with zero dependencies and TypeScript support.
+A minimalistic, secure, type-safe, zero-dependencies, persistent data store.
 
 ## Usage
 
