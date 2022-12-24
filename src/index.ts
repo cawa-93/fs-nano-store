@@ -1,6 +1,9 @@
 import {readFile, writeFile} from "node:fs/promises";
+import {watchFile} from 'node:fs'
+import {unwatchFile} from "fs";
+import {EventEmitter} from "node:events";
 
-function loadFromFs<TStore>(filePath: string): Promise<TStore> {
+function loadFromFs<TStore extends Record<any, any>>(filePath: string): Promise<TStore> {
     return readFile(filePath, {encoding: 'utf8'})
         .then((c: string) => c.trim() ? JSON.parse(c) : ({}))
         .catch((e: unknown) => {
@@ -12,24 +15,37 @@ function loadFromFs<TStore>(filePath: string): Promise<TStore> {
         })
 }
 
-function writeToFs<TStore>(filePath: string, data: TStore): Promise<void> {
-    return writeFile(filePath, JSON.stringify(data), {encoding: 'utf8'})
-}
 
-export function defineStore<TStore extends Record<any, any>>(filePath: string) {
-    function getValue<TKey extends keyof TStore>(key: TKey): Promise<TStore[TKey]> {
-        return loadFromFs<TStore>(filePath).then(s => s[key])
+export async function defineStore<TStore extends Record<any, any>>(filePath: string) {
+    let _cachedStore: TStore = await loadFromFs<TStore>(filePath)
+    const changesEventEmitter = new EventEmitter()
+
+    function reloadStore() {
+        return loadFromFs<TStore>(filePath).then(s => {
+            _cachedStore = s;
+            changesEventEmitter.emit('changed', _cachedStore)
+        })
+    }
+
+    watchFile(filePath, reloadStore)
+
+    function getValue<TKey extends keyof TStore>(key: TKey): TStore[TKey] {
+        return _cachedStore[key]
     }
 
     function setValue<TKey extends keyof TStore>(key: TKey, value: TStore[TKey]) {
-        loadFromFs<TStore>(filePath).then(s => {
-            s[key] = value
-            return writeToFs<TStore>(filePath, s)
-        })
+        _cachedStore[key] = value
+        changesEventEmitter.emit('changed', _cachedStore)
+        unwatchFile(filePath, reloadStore)
+        return writeFile(filePath, JSON.stringify(_cachedStore), {encoding: 'utf8'})
+            .then(() => {
+                watchFile(filePath, reloadStore)
+            })
     }
 
     return {
         get: getValue,
         set: setValue,
+        changes: changesEventEmitter,
     }
 }

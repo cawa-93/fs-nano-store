@@ -17,8 +17,13 @@ interface Store {
 /**
  * Create storage
  */
-const {get, set} = defineStore<Store>('/path/to/storage-file.json')
+const {get, set} = await defineStore<Store>('/path/to/storage-file.json')
 
-await get('name')
-await set('role', 'wrong-role') // Error: Argument of type '"wrong-role"' is not assignable to parameter of type '"admin" | "user"'.
+get('name') // undefined
+set('name', 'Alex')
+get('name') // Alex
+
+
+// TS Error: Argument of type '"wrong-role"' is not assignable to parameter of type '"admin" | "user"'.
+set('role', 'wrong-role') 
 ```
