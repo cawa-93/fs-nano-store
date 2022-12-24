@@ -23,7 +23,7 @@ interface Store {
 /**
  * Create storage
  */
-const {get, set} = await defineStore<Store>('/path/to/storage-file.json')
+const {get, set, changes} = await defineStore<Store>('/path/to/storage-file.json')
 
 get('name') // undefined
 set('name', 'Alex')
@@ -31,5 +31,11 @@ get('name') // Alex
 
 
 // TS Error: Argument of type '"wrong-role"' is not assignable to parameter of type '"admin" | "user"'.
-set('role', 'wrong-role') 
+set('role', 'wrong-role')
+
+
+// fs-nano-store automatically tracks any storage-file.json changes.
+// Additionally, you can addListener on the `changed` event that emits
+// if the store file has been modified somehow outside defined store methods.
+changes.addListener('changed', () => {})
 ```

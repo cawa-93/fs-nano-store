@@ -23,7 +23,7 @@ export async function defineStore<TStore extends Record<any, any>>(filePath: str
     function reloadStore() {
         return loadFromFs<TStore>(filePath).then(s => {
             _cachedStore = s;
-            changesEventEmitter.emit('changed', _cachedStore)
+            changesEventEmitter.emit('changed')
         })
     }
 
@@ -35,7 +35,6 @@ export async function defineStore<TStore extends Record<any, any>>(filePath: str
 
     function setValue<TKey extends keyof TStore>(key: TKey, value: TStore[TKey]) {
         _cachedStore[key] = value
-        changesEventEmitter.emit('changed', _cachedStore)
         unwatchFile(filePath, reloadStore)
         return writeFile(filePath, JSON.stringify(_cachedStore), {encoding: 'utf8'})
             .then(() => {
