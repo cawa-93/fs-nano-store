@@ -12,7 +12,12 @@
   },
   "keywords": [
     "filesystem",
-    "store"
+    "type-safe",
+    "secure",
+    "persistent",
+    "storage",
+    "store",
+    "zero-dependencies"
   ],
   "author": {
     "email": "kozackunisoft@gmail.com",
