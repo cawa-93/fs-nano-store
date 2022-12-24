@@ -1,6 +1,5 @@
 import {readFile, writeFile} from "node:fs/promises";
-import {watchFile} from 'node:fs'
-import {unwatchFile} from "fs";
+import {unwatchFile, watchFile} from 'node:fs'
 import {EventEmitter} from "node:events";
 
 function loadFromFs<TStore extends Record<any, any>>(filePath: string): Promise<TStore> {
