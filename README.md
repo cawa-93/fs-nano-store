@@ -13,7 +13,7 @@ A simple, super minimalistic data store on a file system with zero dependencies 
 import {defineStore} from "fs-nano-store";
 
 /**
- * Declar types for you storage
+ * Declare types for you storage
  */
 interface Store {
     name: string,
