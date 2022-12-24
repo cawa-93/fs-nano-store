@@ -1,0 +1,35 @@
+{
+  "name": "fs-nano-store",
+  "version": "0.0.1",
+  "description": "A simple, super minimalistic data store on a file system with zero dependencies and TypeScript support",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --splitting --clean",
+    "dev": "tsup src/index.ts --format esm --dts --splitting --watch --clean",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": {
+    "email": "kozackunisoft@gmail.com",
+    "name": "Alex Kozack",
+    "url": "https://kozack.me"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "18.11.17",
+    "tsup": "6.5.0",
+    "typescript": "4.9.4"
+  }
+}
