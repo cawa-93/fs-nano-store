@@ -3,6 +3,7 @@
 ---
 
 # Nano filesystem storage
+
 <a href="https://www.buymeacoffee.com/kozack" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" height="60" alt="Buy Me A Coffee"></a>
 
 A minimalistic, secure, type-safe, zero-dependencies, persistent data store.
@@ -10,17 +11,17 @@ A minimalistic, secure, type-safe, zero-dependencies, persistent data store.
 ## Usage
 
 ```ts
-import {defineStore} from "fs-nano-store";
+import { defineStore } from "fs-nano-store";
 
 /**
  * Declare types for you storage
  */
 type Store = {
-    name: string,
-    role: 'admin' | 'user'
+	name: string,
+	role: 'admin' | 'user'
 }
 
-const {get, set, changes} = await defineStore<Store>('/path/to/storage-file.json')
+const { get, set, changes } = await defineStore<Store>('/path/to/storage-file.json')
 
 get('name') // undefined
 set('name', 'Alex')
@@ -33,16 +34,21 @@ set('role', 'wrong-role')
 // fs-nano-store automatically tracks any storage-file.json changes.
 // Additionally, you can addListener on the `changed` event that emits
 // if the store file has been modified somehow outside defined store methods.
-changes.addListener('changed', () => {})
+changes.addListener('changed', () => {
+})
 ```
+
 ### Custom serializer
+
 Global `JSON` is used for data serialization. But you can define own data serializer.
 
 ```ts
 defineStore('store-file.json', {
-    serializer: {
-        parse: (str) => {},
-		stringify: (data) => {}
+	serializer: {
+		parse: (str) => {
+		},
+		stringify: (data) => {
+		}
 	}
 })
 ```
