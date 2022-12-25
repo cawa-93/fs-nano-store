@@ -12,13 +12,12 @@ export type TNanoStore<TStore extends TNanoStoreData> = {
 }
 
 
-
-function loadFromFs<TStore extends TNanoStoreData>(filePath: string): Promise<TStore> {
+function loadFromFs(filePath: string): Promise<string> {
     return readFile(filePath, {encoding: 'utf8'})
-        .then((c: string) => c.trim() ? JSON.parse(c) : ({}))
+        .then((c: string) => c.trim() ? c : '{}')
         .catch((e: unknown) => {
             if (e instanceof Error && 'code' in e && e.code === 'ENOENT') {
-                return {}
+                return '{}'
             }
 
             throw e
@@ -26,13 +25,23 @@ function loadFromFs<TStore extends TNanoStoreData>(filePath: string): Promise<TS
 }
 
 
-export async function defineStore<TStore extends TNanoStoreData>(filePath: string): Promise<TNanoStore<TStore>> {
-    let _cachedStore: TStore = await loadFromFs<TStore>(filePath)
+type NanoStoreSerializer = {
+    stringify: (data: any) => string
+    parse: (string: string) => any
+}
+
+export async function defineStore<TStore extends TNanoStoreData>(
+    filePath: string,
+    {serializer = JSON}: {
+        serializer?: NanoStoreSerializer
+    } = {}
+): Promise<TNanoStore<TStore>> {
+    let _cachedStore: TStore = serializer.parse(await loadFromFs(filePath))
     const changesEventEmitter = new EventEmitter()
 
     function reloadStore() {
-        return loadFromFs<TStore>(filePath).then(s => {
-            _cachedStore = s;
+        return loadFromFs(filePath).then(s => {
+            _cachedStore = serializer.parse(s);
             changesEventEmitter.emit('changed')
         })
     }
