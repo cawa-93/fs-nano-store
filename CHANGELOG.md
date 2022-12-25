@@ -1,29 +1,13 @@
-## <small>0.2.3 (2022-12-24)</small>
+# Changelog
 
-* chore: release v0.2.3 ([7b5feb2](https://github.com/cawa-93/fs-nano-store/commit/7b5feb2))
-* fix: deleted debugging stuff ([17959f7](https://github.com/cawa-93/fs-nano-store/commit/17959f7))
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-
-
-## <small>0.2.2 (2022-12-24)</small>
-
-* chore: add `funding` ([4ffdbd5](https://github.com/cawa-93/fs-nano-store/commit/4ffdbd5))
-* chore: add `release` script ([ae9062d](https://github.com/cawa-93/fs-nano-store/commit/ae9062d))
-* chore: add keywords ([e167822](https://github.com/cawa-93/fs-nano-store/commit/e167822))
-* chore: add LICENSE ([2d45799](https://github.com/cawa-93/fs-nano-store/commit/2d45799))
-* chore: release v0.2.2 ([fa7e9fd](https://github.com/cawa-93/fs-nano-store/commit/fa7e9fd))
-* docs: update code sample ([418f472](https://github.com/cawa-93/fs-nano-store/commit/418f472))
-* docs: Update description ([e2a8f1b](https://github.com/cawa-93/fs-nano-store/commit/e2a8f1b))
-* fix: remove `module` ([6a4f43b](https://github.com/cawa-93/fs-nano-store/commit/6a4f43b))
+### [0.2.4](https://github.com/cawa-93/fs-nano-store/compare/v0.2.3...v0.2.4) (2022-12-25)
 
 
+### Features
 
-## <small>0.2.1 (2022-12-24)</small>
-
-* 0.2.1 ([fb387dc](https://github.com/cawa-93/fs-nano-store/commit/fb387dc))
-* docs: try to fix image size ([74938fd](https://github.com/cawa-93/fs-nano-store/commit/74938fd))
-
-
+* add support for custom serializer ([023969b](https://github.com/cawa-93/fs-nano-store/commit/023969b8a925a2ed6fccc928196829452b1419d5))
 
 ## 0.2.0 (2022-12-24)
 
@@ -46,6 +30,3 @@
 * docs: Update README.md ([173b0c5](https://github.com/cawa-93/fs-nano-store/commit/173b0c5))
 * docs: Update README.md ([edfc0ae](https://github.com/cawa-93/fs-nano-store/commit/edfc0ae))
 * feat: sync read-write ([37df2cc](https://github.com/cawa-93/fs-nano-store/commit/37df2cc))
-
-
-
