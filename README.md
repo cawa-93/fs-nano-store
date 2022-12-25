@@ -39,7 +39,7 @@ changes.addListener('changed', () => {})
 Global `JSON` is used for data serialization. But you can define own data serializer.
 
 ```ts
-defineStore({
+defineStore('store-file.json', {
     serializer: {
         parse: (str) => {},
 		stringify: (data) => {}
