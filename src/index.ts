@@ -6,8 +6,20 @@ type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
 
 export type TNanoStoreData = Record<string, Json>
 export type TNanoStore<TStore extends TNanoStoreData> = {
+    /** Return value from store by key */
     get<TKey extends keyof TStore>(key: TKey): TStore[TKey]
+    /**
+     * Save `value` to store for `key`.
+     * Synchronously stores data to local in-memory storage.
+     * Asynchronously updates storage on the file system.
+     * @param key
+     * @param value
+     * @return Promise that resolves when filesystem changes was successfully applied.
+     */
     set<TKey extends keyof TStore>(key: TKey, value: TStore[TKey]): Promise<void>
+    /**
+     * Emit event `changed` when file in filesystem was changed outside current store instance.
+     */
     changes: EventEmitter
 }
 
@@ -30,6 +42,11 @@ type NanoStoreSerializer = {
     parse: (string: string) => any
 }
 
+/**
+ * Create persistent in-filesystem storage.
+ * @param filePath path to file where all data saved
+ * @param serializer custom serializer. Default is global `JSON` object
+ */
 export async function defineStore<TStore extends TNanoStoreData>(
     filePath: string,
     {serializer = JSON}: {

@@ -20,22 +20,29 @@ type Store = {
     role: 'admin' | 'user'
 }
 
-/**
- * Create storage
- */
 const {get, set, changes} = await defineStore<Store>('/path/to/storage-file.json')
 
 get('name') // undefined
 set('name', 'Alex')
 get('name') // Alex
 
-
+// Store is Type-safe
 // TS Error: Argument of type '"wrong-role"' is not assignable to parameter of type '"admin" | "user"'.
 set('role', 'wrong-role')
-
 
 // fs-nano-store automatically tracks any storage-file.json changes.
 // Additionally, you can addListener on the `changed` event that emits
 // if the store file has been modified somehow outside defined store methods.
 changes.addListener('changed', () => {})
+```
+### Custom serializer
+Global `JSON` is used for data serialization. But you can define own data serializer.
+
+```ts
+defineStore({
+    serializer: {
+        parse: (str) => {},
+		stringify: (data) => {}
+	}
+})
 ```
