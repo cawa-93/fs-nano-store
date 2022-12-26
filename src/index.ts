@@ -70,6 +70,10 @@ export async function defineStore<TStore extends TNanoStoreData>(
 	}
 
 	function setValue<TKey extends keyof TStore>(key: TKey, value: TStore[TKey]) {
+		// Prohibition of changing potentially unsafe keys
+		if (key in Object.prototype) {
+			return Promise.resolve();
+		}
 		_cachedStore[key] = value;
 		unwatchFile(filePath, reloadStore);
 		return writeFile(filePath, JSON.stringify(_cachedStore), { encoding: 'utf8' }).then(() => {
