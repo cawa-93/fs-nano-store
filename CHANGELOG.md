@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.5](https://github.com/cawa-93/fs-nano-store/compare/v0.2.4...v0.2.5) (2022-12-26)
+
+
+### Features
+
+* disallow saving fields from `Object.prototype` ([bfc6b43](https://github.com/cawa-93/fs-nano-store/commit/bfc6b43423e745e8990db55e8c8c1baaf50c37a4))
+* mark package as `sideEffects: false` ([f60f540](https://github.com/cawa-93/fs-nano-store/commit/f60f5401900068e30eff74388fb10380ea9a5800))
+
 ### [0.2.4](https://github.com/cawa-93/fs-nano-store/compare/v0.2.3...v0.2.4) (2022-12-25)
 
 
