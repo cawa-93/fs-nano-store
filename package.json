@@ -1,50 +1,50 @@
 {
-  "name": "fs-nano-store",
-  "version": "0.2.4",
-  "description": "A minimalistic, secure, type-safe, zero-dependencies, persistent data store",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts --splitting --clean",
-    "dev": "tsup src/index.ts --format cjs,esm --dts --splitting --clean --watch",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublishOnly": "npm run build",
-    "release": "npx standard-version --sign && npm publish --public"
-  },
-  "keywords": [
-    "filesystem",
-    "type-safe",
-    "secure",
-    "persistent",
-    "storage",
-    "store",
-    "zero-dependencies"
-  ],
-  "author": {
-    "email": "kozackunisoft@gmail.com",
-    "name": "Alex Kozack",
-    "url": "https://kozack.me"
-  },
-  "repository": "github:cawa-93/fs-nano-store",
-  "homepage": "https://github.com/cawa-93/fs-nano-store#readme",
-  "bugs": {
-    "url": "https://github.com/cawa-93/fs-nano-store/issues"
-  },
-  "funding": "https://www.buymeacoffee.com/kozack/",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
-  },
-  "files": [
-    "dist"
-  ],
-  "license": "MIT",
-  "devDependencies": {
-    "@types/node": "18.11.17",
-    "tsup": "6.5.0",
-    "typescript": "4.9.4"
-  }
+	"name": "fs-nano-store",
+	"version": "0.2.4",
+	"description": "A minimalistic, secure, type-safe, zero-dependencies, persistent data store",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"build": "tsup src/index.ts --format cjs,esm --dts --splitting --clean",
+		"dev": "tsup src/index.ts --format cjs,esm --dts --splitting --clean --watch",
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"prepublishOnly": "npm run build",
+		"release": "npx standard-version --sign && npm publish --public"
+	},
+	"keywords": [
+		"filesystem",
+		"type-safe",
+		"secure",
+		"persistent",
+		"storage",
+		"store",
+		"zero-dependencies"
+	],
+	"author": {
+		"email": "kozackunisoft@gmail.com",
+		"name": "Alex Kozack",
+		"url": "https://kozack.me"
+	},
+	"repository": "github:cawa-93/fs-nano-store",
+	"homepage": "https://github.com/cawa-93/fs-nano-store#readme",
+	"bugs": {
+		"url": "https://github.com/cawa-93/fs-nano-store/issues"
+	},
+	"funding": "https://www.buymeacoffee.com/kozack/",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "18.11.17",
+		"tsup": "6.5.0",
+		"typescript": "4.9.4"
+	}
 }
