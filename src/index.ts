@@ -21,18 +21,6 @@ export type TNanoStore<TStore extends TNanoStoreData> = {
 	changes: EventEmitter;
 };
 
-function loadFromFs(filePath: string): Promise<string> {
-	return readFile(filePath, { encoding: 'utf8' })
-		.then((c: string) => (c.trim() ? c : '{}'))
-		.catch((e: unknown) => {
-			if (e instanceof Error && 'code' in e && e.code === 'ENOENT') {
-				return '{}';
-			}
-
-			throw e;
-		});
-}
-
 type NanoStoreSerializer = {
 	stringify: (data: any) => string;
 	parse: (string: string) => any;
@@ -51,20 +39,33 @@ export async function defineStore<TStore extends TNanoStoreData>(
 		serializer?: NanoStoreSerializer;
 	} = {}
 ): Promise<TNanoStore<TStore>> {
-	let _cachedStore: TStore = serializer.parse(await loadFromFs(filePath));
+	function loadFromFs(): Promise<TStore> {
+		return readFile(filePath, { encoding: 'utf8' })
+			.catch((e: unknown) => {
+				if (e instanceof Error && 'code' in e && e.code === 'ENOENT') {
+					return '';
+				}
+
+				throw e;
+			})
+			.then((c) => (c.trim() ? serializer.parse(c) : {}));
+	}
+
+	/** @private */
+	let inMemoryCachedStore: TStore = await loadFromFs();
+
+	/** @public */
 	const changesEventEmitter = new EventEmitter();
 
-	function reloadStore() {
-		return loadFromFs(filePath).then((s) => {
-			_cachedStore = serializer.parse(s);
-			changesEventEmitter.emit('changed');
-		});
+	async function reloadStore() {
+		inMemoryCachedStore = await loadFromFs();
+		changesEventEmitter.emit('changed');
 	}
 
 	watchFile(filePath, reloadStore);
 
 	function getValue<TKey extends keyof TStore>(key: TKey): TStore[TKey] {
-		return _cachedStore[key];
+		return inMemoryCachedStore[key];
 	}
 
 	/**
@@ -82,9 +83,9 @@ export async function defineStore<TStore extends TNanoStoreData>(
 			return;
 		}
 
-		_cachedStore[key] = deepCopy(value);
+		inMemoryCachedStore[key] = deepCopy(value);
 		unwatchFile(filePath, reloadStore);
-		await writeFile(filePath, serializer.stringify(_cachedStore), { encoding: 'utf8' });
+		await writeFile(filePath, serializer.stringify(inMemoryCachedStore), { encoding: 'utf8' });
 		watchFile(filePath, reloadStore);
 	}
 
