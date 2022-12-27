@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.6](https://github.com/cawa-93/fs-nano-store/compare/v0.2.5...v0.2.6) (2022-12-27)
+
+
+### Features
+
+* allowed more complex data types ([bf53e4d](https://github.com/cawa-93/fs-nano-store/commit/bf53e4dad8234e2eccf0f46fb62b4eaac1873067))
+
+
+### Bug Fixes
+
+* objects are copied to the store and not referenced to it ([aa91ca7](https://github.com/cawa-93/fs-nano-store/commit/aa91ca7c1ce7c0f4aaed705136ef30b4bce0aa11))
+
 ### [0.2.5](https://github.com/cawa-93/fs-nano-store/compare/v0.2.4...v0.2.5) (2022-12-26)
 
 
