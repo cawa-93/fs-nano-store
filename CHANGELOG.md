@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.8](https://github.com/cawa-93/fs-nano-store/compare/v0.2.7...v0.2.8) (2022-12-27)
+
+
+### Bug Fixes
+
+* do not emit `changed` event on initialization if file doesn't exist ([311ee90](https://github.com/cawa-93/fs-nano-store/commit/311ee90f1b65dbbfef1e1dbeb40232e578ad7d2d))
+* do not run parsing if file is empty ([2202650](https://github.com/cawa-93/fs-nano-store/commit/2202650091528069d633bb803ad091b0b88be516))
+
 ### [0.2.7](https://github.com/cawa-93/fs-nano-store/compare/v0.2.6...v0.2.7) (2022-12-27)
 
 
