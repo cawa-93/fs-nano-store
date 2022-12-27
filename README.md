@@ -41,6 +41,15 @@ changes.addListener('changed', () => {
 })
 ```
 
+> **Note**
+> Object are deeply cloned when saving to store. 
+> ```ts
+> const obj = {}
+> store.set('obj', obj)
+> store.get('obj') !== obj
+> obj.bar = 'baz' // will not affected to stored data
+
+
 ### Custom serializer
 
 By default, all data is serialized in JSON using global `JSON`.
