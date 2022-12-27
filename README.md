@@ -8,6 +8,9 @@
 
 A minimalistic, secure, type-safe, zero-dependencies, persistent data store.
 
+> **Note**
+> If you want safely use it in electron app look at **[electron-nano-store](https://github.com/cawa-93/electron-nano-store)**
+
 ## Usage
 
 ```ts
