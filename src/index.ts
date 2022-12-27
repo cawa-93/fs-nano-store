@@ -69,12 +69,21 @@ export async function defineStore<TStore extends TNanoStoreData>(
 		return _cachedStore[key];
 	}
 
+	/**
+	 * Used `structuredClone` for deep cloning
+	 * or fallback to `JSON.parse(JSON.stringify)`
+	 */
+	const deepCopy: <T>(value: T) => T =
+		typeof structuredClone === 'function'
+			? structuredClone
+			: <T>(value: T): T => serializer.parse(serializer.stringify(value));
+
 	function setValue<TKey extends keyof TStore>(key: TKey, value: TStore[TKey]) {
 		// Prohibition of changing potentially unsafe keys
 		if (key in Object.prototype) {
 			return Promise.resolve();
 		}
-		_cachedStore[key] = value;
+		_cachedStore[key] = deepCopy(value);
 		unwatchFile(filePath, reloadStore);
 		return writeFile(filePath, JSON.stringify(_cachedStore), { encoding: 'utf8' }).then(() => {
 			watchFile(filePath, reloadStore);
