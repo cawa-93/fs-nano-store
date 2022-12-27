@@ -1,5 +1,5 @@
 import { readFile, writeFile } from 'node:fs/promises';
-import { unwatchFile, watchFile } from 'node:fs';
+import { unwatchFile, watchFile, type Stats } from 'node:fs';
 import { EventEmitter } from 'node:events';
 
 export type TNanoStoreData = Record<string, unknown>;
@@ -57,13 +57,16 @@ export async function defineStore<TStore extends TNanoStoreData>(
 	/** @public */
 	const changesEventEmitter = new EventEmitter();
 
-	async function reloadStore() {
+	async function fileChangeHandler(stat: Stats) {
+		if (!stat.isFile()) {
+			return;
+		}
+
 		inMemoryCachedStore = await loadFromFs();
 		changesEventEmitter.emit('changed');
 	}
 
-	watchFile(filePath, reloadStore);
-
+	watchFile(filePath, fileChangeHandler);
 	function getValue<TKey extends keyof TStore>(key: TKey): TStore[TKey] {
 		return inMemoryCachedStore[key];
 	}
@@ -84,9 +87,9 @@ export async function defineStore<TStore extends TNanoStoreData>(
 		}
 
 		inMemoryCachedStore[key] = deepCopy(value);
-		unwatchFile(filePath, reloadStore);
+		unwatchFile(filePath, fileChangeHandler);
 		await writeFile(filePath, serializer.stringify(inMemoryCachedStore), { encoding: 'utf8' });
-		watchFile(filePath, reloadStore);
+		watchFile(filePath, fileChangeHandler);
 	}
 
 	return {
