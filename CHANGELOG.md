@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.7](https://github.com/cawa-93/fs-nano-store/compare/v0.2.6...v0.2.7) (2022-12-27)
+
+
+### Bug Fixes
+
+* custom serializer doesn't use in `set` ([a2e2118](https://github.com/cawa-93/fs-nano-store/commit/a2e21181807d831e7133c75c50e60a4480fde3b0))
+
 ### [0.2.6](https://github.com/cawa-93/fs-nano-store/compare/v0.2.5...v0.2.6) (2022-12-27)
 
 
