@@ -10,8 +10,7 @@
 		"build": "tsup src/index.ts --format cjs,esm --dts --splitting --clean",
 		"dev": "tsup src/index.ts --format cjs,esm --dts --splitting --clean --watch",
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"prepublishOnly": "npm run build",
-		"release": "npx standard-version --sign && git push --follow-tags origin main && npm publish --public"
+		"release": "npm run build && npx standard-version --sign && git push --follow-tags origin main && npm publish --public"
 	},
 	"keywords": [
 		"filesystem",
