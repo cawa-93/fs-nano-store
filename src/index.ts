@@ -83,7 +83,7 @@ export async function defineStore<TStore extends TNanoStoreData>(
 		}
 		_cachedStore[key] = deepCopy(value);
 		unwatchFile(filePath, reloadStore);
-		return writeFile(filePath, JSON.stringify(_cachedStore), { encoding: 'utf8' }).then(() => {
+		return writeFile(filePath, serializer.stringify(_cachedStore), { encoding: 'utf8' }).then(() => {
 			watchFile(filePath, reloadStore);
 		});
 	}
