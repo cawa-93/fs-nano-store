@@ -40,15 +40,22 @@ changes.addListener('changed', () => {
 
 ### Custom serializer
 
-Global `JSON` is used for data serialization. But you can define own data serializer.
+By default, all data is serialized in JSON using global `JSON`.
+So if you want to store more complex data types like `Date` or `Map`, or want to have custom `stringify`/`parse` logic,
+you need to use your own serializer that supports those data types. Example with [superjson](https://github.com/blitz-js/superjson):
 
 ```ts
-defineStore('store-file.json', {
-	serializer: {
-		parse: (str) => {
-		},
-		stringify: (data) => {
-		}
-	}
+import { defineStore } from 'fs-nano-store'
+import superjson from 'superjson';
+
+type Store = {
+	date: Date,
+}
+
+const store = defineStore<Store>('store-file.json', {
+	serializer: superjson
 })
+
+store.set('date', new Date)
+store.get('date') // Date object
 ```

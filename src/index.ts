@@ -2,9 +2,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { unwatchFile, watchFile } from 'node:fs';
 import { EventEmitter } from 'node:events';
 
-type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
-
-export type TNanoStoreData = Record<string, Json>;
+export type TNanoStoreData = Record<string, unknown>;
 export type TNanoStore<TStore extends TNanoStoreData> = {
 	/** Return value from store by key */
 	get<TKey extends keyof TStore>(key: TKey): TStore[TKey];
