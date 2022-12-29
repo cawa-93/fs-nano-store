@@ -1,5 +1,5 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { unwatchFile, watchFile, type Stats } from 'node:fs';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { type Stats, unwatchFile, watchFile } from 'node:fs';
 import { EventEmitter } from 'node:events';
 import { dirname } from 'node:path';
 
@@ -25,6 +25,10 @@ export type TNanoStore<TStore extends TNanoStoreData> = {
 type NanoStoreSerializer = {
 	stringify: (data: any) => string;
 	parse: (string: string) => any;
+};
+
+const EVENTS = {
+	changed: 'changed',
 };
 
 /**
@@ -64,10 +68,21 @@ export async function defineStore<TStore extends TNanoStoreData>(
 		}
 
 		inMemoryCachedStore = await loadFromFs();
-		changesEventEmitter.emit('changed');
+		changesEventEmitter.emit(EVENTS.changed);
 	}
 
-	watchFile(filePath, fileChangeHandler);
+	changesEventEmitter.addListener('newListener', (eventName: string) => {
+		if (eventName === EVENTS.changed && changesEventEmitter.listenerCount(EVENTS.changed) === 0) {
+			watchFile(filePath, fileChangeHandler);
+		}
+	});
+
+	changesEventEmitter.addListener('removeListener', (eventName: string) => {
+		if (eventName === EVENTS.changed && changesEventEmitter.listenerCount(EVENTS.changed) === 0) {
+			unwatchFile(filePath, fileChangeHandler);
+		}
+	});
+
 	function getValue<TKey extends keyof TStore>(key: TKey): TStore[TKey] {
 		return inMemoryCachedStore[key];
 	}
@@ -88,10 +103,17 @@ export async function defineStore<TStore extends TNanoStoreData>(
 		}
 
 		inMemoryCachedStore[key] = deepCopy(value);
-		unwatchFile(filePath, fileChangeHandler);
+
+		if (changesEventEmitter.listenerCount(EVENTS.changed) > 0) {
+			unwatchFile(filePath, fileChangeHandler);
+		}
+
 		await mkdir(dirname(filePath), { recursive: true });
 		await writeFile(filePath, serializer.stringify(inMemoryCachedStore), { encoding: 'utf8' });
-		watchFile(filePath, fileChangeHandler);
+
+		if (changesEventEmitter.listenerCount(EVENTS.changed) > 0) {
+			watchFile(filePath, fileChangeHandler);
+		}
 	}
 
 	return {
