@@ -1,6 +1,7 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { unwatchFile, watchFile, type Stats } from 'node:fs';
 import { EventEmitter } from 'node:events';
+import { dirname } from 'node:path';
 
 export type TNanoStoreData = Record<string, unknown>;
 export type TNanoStore<TStore extends TNanoStoreData> = {
@@ -88,6 +89,7 @@ export async function defineStore<TStore extends TNanoStoreData>(
 
 		inMemoryCachedStore[key] = deepCopy(value);
 		unwatchFile(filePath, fileChangeHandler);
+		await mkdir(dirname(filePath), { recursive: true });
 		await writeFile(filePath, serializer.stringify(inMemoryCachedStore), { encoding: 'utf8' });
 		watchFile(filePath, fileChangeHandler);
 	}
