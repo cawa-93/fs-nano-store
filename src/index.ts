@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { type Stats, unwatchFile, watchFile } from 'node:fs';
 import { EventEmitter } from 'node:events';
 import { dirname } from 'node:path';
+import { watch } from 'fs';
 
 export type TNanoStoreData = Record<string, unknown>;
 export type TNanoStore<TStore extends TNanoStoreData> = {
@@ -40,8 +41,10 @@ export async function defineStore<TStore extends TNanoStoreData>(
 	filePath: string,
 	{
 		serializer = JSON,
+		storeName = '', // TODO: REMOVE THIS
 	}: {
 		serializer?: NanoStoreSerializer;
+		storeName?: string; // TODO: REMOVE THIS
 	} = {}
 ): Promise<TNanoStore<TStore>> {
 	function loadFromFs(): Promise<TStore> {
@@ -63,6 +66,7 @@ export async function defineStore<TStore extends TNanoStoreData>(
 	const changesEventEmitter = new EventEmitter();
 
 	async function fileChangeHandler(stat: Stats) {
+		console.log(`[${storeName}] [fileChangeHandler]`, `${filePath} CHANGED`);
 		if (!stat.isFile()) {
 			return;
 		}
@@ -72,13 +76,16 @@ export async function defineStore<TStore extends TNanoStoreData>(
 	}
 
 	changesEventEmitter.addListener('newListener', (eventName: string) => {
+		console.log(`[${storeName}] newListener`, { eventName });
 		if (eventName === EVENTS.changed && changesEventEmitter.listenerCount(EVENTS.changed) === 0) {
-			watchFile(filePath, fileChangeHandler);
+			console.log(`[${storeName}] START WATCH FILE`, filePath);
+			watchFile(filePath, { interval: 100 }, fileChangeHandler);
 		}
 	});
 
 	changesEventEmitter.addListener('removeListener', (eventName: string) => {
 		if (eventName === EVENTS.changed && changesEventEmitter.listenerCount(EVENTS.changed) === 0) {
+			console.log(`[${storeName}] STOP WATCH FILE`, filePath);
 			unwatchFile(filePath, fileChangeHandler);
 		}
 	});
@@ -105,14 +112,17 @@ export async function defineStore<TStore extends TNanoStoreData>(
 		inMemoryCachedStore[key] = deepCopy(value);
 
 		if (changesEventEmitter.listenerCount(EVENTS.changed) > 0) {
+			console.log(`[${storeName}] PAUSE WATCH FILE`, filePath);
 			unwatchFile(filePath, fileChangeHandler);
 		}
 
 		await mkdir(dirname(filePath), { recursive: true });
 		await writeFile(filePath, serializer.stringify(inMemoryCachedStore), { encoding: 'utf8' });
-
 		if (changesEventEmitter.listenerCount(EVENTS.changed) > 0) {
-			watchFile(filePath, fileChangeHandler);
+			console.log(`[${storeName}] AWAITING BEFORE RESUME`, filePath);
+			await new Promise((r) => setTimeout(r, 200));
+			console.log(`[${storeName}] RESUME WATCH FILE`, filePath);
+			watchFile(filePath, { interval: 100 }, fileChangeHandler);
 		}
 	}
 
