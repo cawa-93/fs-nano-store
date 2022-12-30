@@ -22,14 +22,17 @@ tap.afterEach(() => {
 });
 
 await tap.test('Should fail if no path', (t) =>
-	t.rejects(
-		() => defineStore(),
-		{
-			name: 'TypeError',
-			code: 'ERR_INVALID_ARG_TYPE',
-		},
-		{ todo: false }
-	)
+	t.rejects(() => defineStore(), {
+		name: 'TypeError',
+		code: 'ERR_INVALID_ARG_TYPE',
+	})
+);
+
+await tap.test('Should fail if invalid path', (t) =>
+	t.rejects(() => defineStore(path.resolve(os.tmpdir(), 'fs-nano-store', '\0>|[]')), {
+		name: 'TypeError',
+		code: 'ERR_INVALID_ARG_VALUE',
+	})
 );
 
 await tap.test('Should return correct signature', async (t) => {
