@@ -3,15 +3,17 @@ import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { EventEmitter } from 'node:events';
 import { defineStore } from '../dist/index.js'; // Must import CJS module since node-tap doesn't track changes in ESM module in --watch mode
-import { readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
+import { mkdirSync } from 'fs';
 
 const randomString = () => randomBytes(4).toString('hex');
 
-const storePath = resolve(tmpdir(), 'fs-nano-store', `index.spec.${Date.now()}-${randomString()}.json`);
+const storeDir = resolve(tmpdir(), 'fs-nano-store');
+const storePath = resolve(storeDir, `index.spec.${Date.now()}-${randomString()}.json`);
 tap.afterEach(() => {
 	try {
-		unlinkSync(storePath);
+		rmSync(storeDir, { recursive: true });
 	} catch (e) {
 		if (e instanceof Error && 'code' in e && e.code === 'ENOENT') {
 			return;
@@ -29,7 +31,7 @@ await tap.test('Should fail if no path', (t) =>
 );
 
 await tap.test('Should fail if invalid path', (t) =>
-	t.rejects(() => defineStore(resolve(tmpdir(), 'fs-nano-store', '\0>|[]')), {
+	t.rejects(() => defineStore(resolve(storeDir, '\0>|[]')), {
 		name: 'TypeError',
 		code: 'ERR_INVALID_ARG_VALUE',
 	})
@@ -52,6 +54,7 @@ await tap.test('Should pick up initial value', async (t) => {
 	const key = randomString();
 	const value = randomString();
 
+	mkdirSync(storeDir, { recursive: true });
 	writeFileSync(storePath, JSON.stringify({ [key]: value }), { encoding: 'utf8' });
 
 	const store = await defineStore(storePath);
