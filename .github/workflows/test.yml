@@ -1,10 +1,13 @@
 on:
   [ push, pull_request ]
+
+concurrency:
+    cancel-in-progress: true
+    group: test-${{ github.ref }}
+
+
 jobs:
     test:
-        concurrency:
-            cancel-in-progress: true
-            group: test-${{ github.ref }}
         strategy:
             matrix:
                 # Testing on different platforms since work with FS is platform-depended
