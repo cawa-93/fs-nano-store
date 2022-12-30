@@ -7,9 +7,10 @@
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
-		"build": "tsup src/index.ts --format cjs,esm --dts --splitting --clean",
-		"dev": "tsup src/index.ts --format cjs,esm --dts --splitting --clean --watch",
-		"test": "echo \"Error: no test specified\" && exit 1",
+		"build": "tsup src/index.ts --format cjs,esm --dts --splitting --clean --sourcemap",
+		"dev": "tsup src/index.ts --format cjs,esm --splitting --clean --watch",
+		"test": "tap --no-check-coverage --reporter=specy",
+		"test:dev": "tap -w --no-check-coverage",
 		"release": "npm run build && npx standard-version --sign && git push --follow-tags origin main && npm publish --public"
 	},
 	"keywords": [
@@ -44,6 +45,8 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@types/node": "18.11.17",
+		"@types/tap": "15.0.7",
+		"tap": "16.3.2",
 		"tsup": "6.5.0",
 		"typescript": "4.9.4"
 	}

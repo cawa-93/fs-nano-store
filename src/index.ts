@@ -1,7 +1,7 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { unwatchFile, watchFile, type Stats } from 'node:fs';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { type FSWatcher, watch } from 'node:fs';
 import { EventEmitter } from 'node:events';
-import { dirname } from 'node:path';
+import { dirname, resolve } from 'node:path';
 
 export type TNanoStoreData = Record<string, unknown>;
 export type TNanoStore<TStore extends TNanoStoreData> = {
@@ -27,6 +27,11 @@ type NanoStoreSerializer = {
 	parse: (string: string) => any;
 };
 
+const EVENTS = {
+	changed: 'changed',
+};
+
+// noinspection JSUnusedGlobalSymbols
 /**
  * Create persistent in-filesystem storage.
  * @param filePath path to file where all data saved
@@ -40,6 +45,39 @@ export async function defineStore<TStore extends TNanoStoreData>(
 		serializer?: NanoStoreSerializer;
 	} = {}
 ): Promise<TNanoStore<TStore>> {
+	let watcher: FSWatcher | null = null;
+
+	function startWatcher() {
+		if (watcher !== null) {
+			return;
+		}
+
+		try {
+			watcher = watch(filePath, { encoding: 'utf8' }, () => fileChangeHandler());
+		} catch (e) {
+			if (e instanceof Error && 'code' in e && e.code === 'ENOENT') {
+				// Fallback to directory watching
+				const dir = dirname(filePath);
+				watcher = watch(dir, (event, filename) => {
+					if (resolve(dir, filename) === filePath) {
+						fileChangeHandler();
+					}
+				});
+			} else {
+				throw e;
+			}
+		}
+	}
+
+	function stopWatcher() {
+		if (watcher === null) {
+			return;
+		}
+
+		watcher.close();
+		watcher = null;
+	}
+
 	function loadFromFs(): Promise<TStore> {
 		return readFile(filePath, { encoding: 'utf8' })
 			.catch((e: unknown) => {
@@ -58,18 +96,32 @@ export async function defineStore<TStore extends TNanoStoreData>(
 	/** @public */
 	const changesEventEmitter = new EventEmitter();
 
-	async function fileChangeHandler(stat: Stats) {
-		if (!stat.isFile()) {
-			return;
-		}
-
+	async function fileChangeHandler() {
+		// HOTFIX:
+		// On Windows watcher may emit multiple events `changed` for single real change
+		// To fix it I immediately stop watcher on first event and start it after
+		stopWatcher();
 		inMemoryCachedStore = await loadFromFs();
-		changesEventEmitter.emit('changed');
+		changesEventEmitter.emit(EVENTS.changed);
+		startWatcher();
 	}
 
-	watchFile(filePath, fileChangeHandler);
+	changesEventEmitter.addListener('newListener', (eventName: string) => {
+		if (eventName === EVENTS.changed && changesEventEmitter.listenerCount(EVENTS.changed) === 0) {
+			startWatcher();
+		}
+	});
+
+	changesEventEmitter.addListener('removeListener', (eventName: string) => {
+		if (eventName === EVENTS.changed && changesEventEmitter.listenerCount(EVENTS.changed) === 0) {
+			stopWatcher();
+		}
+	});
+
 	function getValue<TKey extends keyof TStore>(key: TKey): TStore[TKey] {
-		return inMemoryCachedStore[key];
+		return Object.prototype.hasOwnProperty.call(inMemoryCachedStore, key)
+			? inMemoryCachedStore[key]
+			: (undefined as any);
 	}
 
 	/**
@@ -88,10 +140,16 @@ export async function defineStore<TStore extends TNanoStoreData>(
 		}
 
 		inMemoryCachedStore[key] = deepCopy(value);
-		unwatchFile(filePath, fileChangeHandler);
+
+		if (changesEventEmitter.listenerCount(EVENTS.changed) > 0) {
+			stopWatcher();
+		}
+
 		await mkdir(dirname(filePath), { recursive: true });
 		await writeFile(filePath, serializer.stringify(inMemoryCachedStore), { encoding: 'utf8' });
-		watchFile(filePath, fileChangeHandler);
+		if (changesEventEmitter.listenerCount(EVENTS.changed) > 0) {
+			startWatcher();
+		}
 	}
 
 	return {
