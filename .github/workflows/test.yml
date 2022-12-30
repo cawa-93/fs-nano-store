@@ -1,0 +1,23 @@
+on:
+  [ push, pull_request ]
+jobs:
+    test:
+        concurrency:
+            cancel-in-progress: true
+            group: test-${{ github.ref }}
+        strategy:
+            matrix:
+                # Testing on different platforms since work with FS is platform-depended
+                os: [ windows-latest, ubuntu-latest, macos-latest ]
+                node: [ 14,16,18,19 ]
+
+        runs-on: ${{ matrix.os }}
+        steps:
+            -   uses: actions/checkout@v3
+            -   uses: actions/setup-node@v3
+                with:
+                    node-version: ${{ matrix.node }}
+                    cache: npm
+            -   run: npm ci
+            -   run: npm run build
+            -   run: npm test

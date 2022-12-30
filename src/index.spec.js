@@ -52,7 +52,7 @@ await tap.test('Should save value', async (t) => {
 	t.equal(store.get('val'), randomStr);
 });
 
-await tap.only('Should NOT save value', async (t) => {
+await tap.test('Should NOT save value', async (t) => {
 	const store = await defineStore(storePath);
 
 	async function checkProp(prop) {
