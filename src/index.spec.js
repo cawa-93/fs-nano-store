@@ -1,8 +1,8 @@
 import tap from 'tap';
 import { tmpdir } from 'node:os';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { EventEmitter } from 'node:events';
-import { defineStore } from '../dist/index.js'; // Must import CJS module since node-tap doesn't track changes in ESM module in --watch mode
+import { defineStore } from '../dist/index.cjs'; // Must import CJS module since node-tap doesn't track changes in ESM module in --watch mode
 import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 import { mkdirSync } from 'fs';
@@ -10,7 +10,7 @@ import { mkdirSync } from 'fs';
 const randomString = () => randomBytes(4).toString('hex');
 
 const storeDir = resolve(tmpdir(), 'fs-nano-store');
-const storePath = resolve(storeDir, `index.spec.${Date.now()}-${randomString()}.json`);
+const storePath = resolve(storeDir, 'tests', 'index', `${Date.now()}-${randomString()}.json`);
 tap.afterEach(() => {
 	try {
 		rmSync(storeDir, { recursive: true });
@@ -54,7 +54,7 @@ await tap.test('Should pick up initial value', async (t) => {
 	const key = randomString();
 	const value = randomString();
 
-	mkdirSync(storeDir, { recursive: true });
+	mkdirSync(dirname(storePath), { recursive: true });
 	writeFileSync(storePath, JSON.stringify({ [key]: value }), { encoding: 'utf8' });
 
 	const store = await defineStore(storePath);

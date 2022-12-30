@@ -47,7 +47,7 @@ export async function defineStore<TStore extends TNanoStoreData>(
 ): Promise<TNanoStore<TStore>> {
 	let watcher: FSWatcher | null = null;
 
-	function startWatcher() {
+	async function startWatcher() {
 		if (watcher !== null) {
 			return;
 		}
@@ -58,6 +58,9 @@ export async function defineStore<TStore extends TNanoStoreData>(
 			if (e instanceof Error && 'code' in e && e.code === 'ENOENT') {
 				// Fallback to directory watching
 				const dir = dirname(filePath);
+				// Ensure that the destination directory for the file exists
+				// Otherwise, the watcher will fail to start if the `filePath` file does not exist
+				await mkdir(dir, { recursive: true });
 				watcher = watch(dir, (event, filename) => {
 					if (resolve(dir, filename) === filePath) {
 						fileChangeHandler();
@@ -104,7 +107,7 @@ export async function defineStore<TStore extends TNanoStoreData>(
 		inMemoryCachedStore = await loadFromFs();
 		if (changesEventEmitter.listenerCount(EVENTS.changed) > 0) {
 			changesEventEmitter.emit(EVENTS.changed);
-			startWatcher();
+			await startWatcher();
 		}
 	}
 
@@ -150,7 +153,7 @@ export async function defineStore<TStore extends TNanoStoreData>(
 		await mkdir(dirname(filePath), { recursive: true });
 		await writeFile(filePath, serializer.stringify(inMemoryCachedStore), { encoding: 'utf8' });
 		if (changesEventEmitter.listenerCount(EVENTS.changed) > 0) {
-			startWatcher();
+			await startWatcher();
 		}
 	}
 
