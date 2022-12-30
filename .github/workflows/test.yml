@@ -13,6 +13,7 @@ jobs:
                 # Testing on different platforms since work with FS is platform-depended
                 os: [ windows-latest, ubuntu-latest, macos-latest ]
                 node: [ 14,16,18,19 ]
+            fail-fast: false
 
         runs-on: ${{ matrix.os }}
         steps:
