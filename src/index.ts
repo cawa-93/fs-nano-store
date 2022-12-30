@@ -99,11 +99,13 @@ export async function defineStore<TStore extends TNanoStoreData>(
 	async function fileChangeHandler() {
 		// HOTFIX:
 		// On Windows watcher may emit multiple events `changed` for single real change
-		// To fix it I immediately stop watcher on first event and start it after
+		// To fix it I immediately stop watcher on first event and start it after if some listeners still exist
 		stopWatcher();
 		inMemoryCachedStore = await loadFromFs();
-		changesEventEmitter.emit(EVENTS.changed);
-		startWatcher();
+		if (changesEventEmitter.listenerCount(EVENTS.changed) > 0) {
+			changesEventEmitter.emit(EVENTS.changed);
+			startWatcher();
+		}
 	}
 
 	changesEventEmitter.addListener('newListener', (eventName: string) => {

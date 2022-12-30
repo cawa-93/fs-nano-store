@@ -93,41 +93,18 @@ await tap.test('Should NOT save value', async (t) => {
 	}
 });
 
-await tap.test('Should emit `changed` event', async (t) => {
-	const store1 = await defineStore(storePath, { storeName: 'store1' });
-	const store2 = await defineStore(storePath, { storeName: 'store2' });
+await tap.test('Should share state across stores', async (t) => {
+	const store1 = await defineStore(storePath);
+	const store2 = await defineStore(storePath);
 
-	let store1Calls = 0;
-	let store2Calls = 0;
-	store1.changes.addListener('changed', () => store1Calls++);
-	store2.changes.addListener('changed', () => store2Calls++);
-
-	function nextTick() {
-		return new Promise((r) => setTimeout(r, 500));
+	async function testStore(storeToChange, storeToListen) {
+		const key = getRandomString();
+		const value = getRandomString();
+		storeToChange.set(key, value);
+		await t.emits(storeToListen.changes, 'changed');
+		t.equal(storeToListen.get(key), value);
 	}
 
-	const key = getRandomString();
-
-	await store1.set(key, `store1-${getRandomString()}`);
-	await nextTick();
-	t.equal(store1Calls, 0);
-	t.equal(store2Calls, 1);
-
-	await store1.set(key, `store1-${getRandomString()}`);
-	await nextTick();
-	t.equal(store1Calls, 0);
-	t.equal(store2Calls, 2);
-
-	await store2.set(key, `store2-${getRandomString()}`);
-	await nextTick();
-	t.equal(store1Calls, 1);
-	t.equal(store2Calls, 2);
-
-	await store2.set(key, `store2-${getRandomString()}`);
-	await nextTick();
-	t.equal(store1Calls, 2);
-	t.equal(store2Calls, 2);
-
-	store1.changes.removeAllListeners('changed');
-	store2.changes.removeAllListeners('changed');
+	await testStore(store1, store2);
+	await testStore(store2, store1);
 });
