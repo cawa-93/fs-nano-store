@@ -7,7 +7,7 @@
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
-		"build": "tsup src/index.ts --format cjs,esm --dts --splitting --clean",
+		"build": "tsup src/index.ts --format cjs,esm --dts --splitting --clean --sourcemap",
 		"dev": "tsup src/index.ts --format cjs,esm --splitting --clean --watch",
 		"test": "tap",
 		"test:dev": "tap -w --no-check-coverage",

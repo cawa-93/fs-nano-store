@@ -45,11 +45,36 @@ await tap.test('Should return correct signature', async (t) => {
 await tap.test('Should save value', async (t) => {
 	const store = await defineStore(storePath);
 
-	t.equal(undefined, store.get('val'));
+	t.equal(store.get('val'), undefined);
 
 	const randomStr = Date.now().toString(10);
 	await t.resolves(store.set('val', randomStr));
-	t.equal(randomStr, store.get('val'));
+	t.equal(store.get('val'), randomStr);
+});
+
+await tap.only('Should NOT save value', async (t) => {
+	const store = await defineStore(storePath);
+
+	async function checkProp(prop) {
+		t.equal(store.get(prop), undefined, `${prop} initially should be undefined`);
+		await t.resolves(store.set(prop, Date.now()));
+		t.equal(store.get(prop), undefined, `${prop} should stay be undefined`);
+	}
+
+	const blacklist = [
+		'__proto__',
+		'constructor',
+		'hasOwnProperty',
+		'isPrototypeOf',
+		'propertyIsEnumerable',
+		'toLocaleString',
+		'toString',
+		'valueOf',
+	];
+
+	for (const prototypeKey of blacklist) {
+		await checkProp(prototypeKey);
+	}
 });
 
 await tap.test('Should emit `changed` event', async (t) => {
