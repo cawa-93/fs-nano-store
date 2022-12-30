@@ -4,10 +4,11 @@ import { resolve } from 'node:path';
 import { EventEmitter } from 'node:events';
 import { defineStore } from '../dist/index.js'; // Must import CJS module since node-tap doesn't track changes in ESM module in --watch mode
 import { readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { randomBytes } from 'node:crypto';
 
-const getRandomString = () => btoa(Math.random().toString()).substring(10, 15);
+const randomString = () => randomBytes(4).toString('hex');
 
-const storePath = resolve(tmpdir(), 'fs-nano-store', `index.spec.${Date.now()}-${getRandomString()}.json`);
+const storePath = resolve(tmpdir(), 'fs-nano-store', `index.spec.${Date.now()}-${randomString()}.json`);
 tap.afterEach(() => {
 	try {
 		unlinkSync(storePath);
@@ -48,8 +49,8 @@ await tap.test('Should return correct signature', async (t) => {
 });
 
 await tap.test('Should pick up initial value', async (t) => {
-	const key = getRandomString();
-	const value = getRandomString();
+	const key = randomString();
+	const value = randomString();
 
 	writeFileSync(storePath, JSON.stringify({ [key]: value }), { encoding: 'utf8' });
 
@@ -60,8 +61,8 @@ await tap.test('Should pick up initial value', async (t) => {
 await tap.test('Should save value', async (t) => {
 	const store = await defineStore(storePath);
 
-	const key = getRandomString();
-	const value = getRandomString();
+	const key = randomString();
+	const value = randomString();
 
 	t.equal(store.get(key), undefined);
 	await t.resolves(store.set(key, value));
@@ -71,8 +72,8 @@ await tap.test('Should save value', async (t) => {
 await tap.test('Should save state to the file system', async (t) => {
 	const store = await defineStore(storePath);
 
-	const key = getRandomString();
-	const value = getRandomString();
+	const key = randomString();
+	const value = randomString();
 
 	await t.resolves(store.set(key, value));
 
@@ -110,8 +111,8 @@ await tap.test('Should share state across stores', async (t) => {
 	const store2 = await defineStore(storePath);
 
 	async function testStore(storeToChange, storeToListen) {
-		const key = getRandomString();
-		const value = getRandomString();
+		const key = randomString();
+		const value = randomString();
 		storeToChange.set(key, value);
 		await t.emits(storeToListen.changes, 'changed');
 		t.equal(storeToListen.get(key), value);
