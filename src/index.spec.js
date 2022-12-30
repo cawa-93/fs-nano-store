@@ -5,7 +5,9 @@ import path from 'node:path';
 import { EventEmitter } from 'node:events';
 import { defineStore } from '../dist/index.cjs';
 
-const storePath = path.resolve(os.tmpdir(), 'fs-nano-store', `index.spec.${Date.now()}.json`);
+const getRandomString = () => btoa(Math.random().toString()).substring(10, 15);
+
+const storePath = path.resolve(os.tmpdir(), 'fs-nano-store', `index.spec.${Date.now()}-${getRandomString()}.json`);
 tap.afterEach(() => {
 	try {
 		fs.unlinkSync(storePath);
@@ -45,11 +47,12 @@ await tap.test('Should return correct signature', async (t) => {
 await tap.test('Should save value', async (t) => {
 	const store = await defineStore(storePath);
 
-	t.equal(store.get('val'), undefined);
+	const key = getRandomString();
+	const value = getRandomString();
 
-	const randomStr = Date.now().toString(10);
-	await t.resolves(store.set('val', randomStr));
-	t.equal(store.get('val'), randomStr);
+	t.equal(store.get(key), undefined);
+	await t.resolves(store.set(key, value));
+	t.equal(store.get(key), value);
 });
 
 await tap.test('Should NOT save value', async (t) => {
@@ -90,22 +93,24 @@ await tap.test('Should emit `changed` event', async (t) => {
 		return new Promise((r) => setTimeout(r, 500));
 	}
 
-	await store1.set('foo', `in-store-${Date.now()}`);
+	const key = getRandomString();
+
+	await store1.set(key, `store1-${getRandomString()}`);
 	await nextTick();
 	t.equal(store1Calls, 0);
 	t.equal(store2Calls, 1);
 
-	await store1.set('foo', `in-store-${Date.now()}`);
+	await store1.set(key, `store1-${getRandomString()}`);
 	await nextTick();
 	t.equal(store1Calls, 0);
 	t.equal(store2Calls, 2);
 
-	await store2.set('foo', `in-store-${Date.now()}`);
+	await store2.set(key, `store2-${getRandomString()}`);
 	await nextTick();
 	t.equal(store1Calls, 1);
 	t.equal(store2Calls, 2);
 
-	await store2.set('foo', `in-store-${Date.now()}`);
+	await store2.set(key, `store2-${getRandomString()}`);
 	await nextTick();
 	t.equal(store1Calls, 2);
 	t.equal(store2Calls, 2);
