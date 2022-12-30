@@ -49,11 +49,11 @@ export async function defineStore<TStore extends TNanoStoreData>(
 
 	function startWatcher() {
 		if (watcher !== null) {
-			throw new Error('File watcher already started');
+			return;
 		}
 
 		try {
-			watcher = watch(filePath, { encoding: 'utf8' }, fileChangeHandler);
+			watcher = watch(filePath, { encoding: 'utf8' }, () => fileChangeHandler());
 		} catch (e) {
 			if (e instanceof Error && 'code' in e && e.code === 'ENOENT') {
 				// Fallback to directory watching
@@ -71,7 +71,7 @@ export async function defineStore<TStore extends TNanoStoreData>(
 
 	function stopWatcher() {
 		if (watcher === null) {
-			throw new Error('File watcher already stopped');
+			return;
 		}
 
 		watcher.close();

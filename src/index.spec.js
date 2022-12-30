@@ -61,23 +61,27 @@ await tap.test('Should emit `changed` event', async (t) => {
 	store1.changes.addListener('changed', () => store1Calls++);
 	store2.changes.addListener('changed', () => store2Calls++);
 
+	function nextTick() {
+		return new Promise((r) => setTimeout(r, 500));
+	}
+
 	await store1.set('foo', `in-store-${Date.now()}`);
-	await new Promise((r) => setTimeout(r, 4000));
+	await nextTick();
 	t.equal(store1Calls, 0);
 	t.equal(store2Calls, 1);
 
 	await store1.set('foo', `in-store-${Date.now()}`);
-	await new Promise((r) => setTimeout(r, 4000));
+	await nextTick();
 	t.equal(store1Calls, 0);
 	t.equal(store2Calls, 2);
 
 	await store2.set('foo', `in-store-${Date.now()}`);
-	await new Promise((r) => setTimeout(r, 4000));
+	await nextTick();
 	t.equal(store1Calls, 1);
 	t.equal(store2Calls, 2);
 
 	await store2.set('foo', `in-store-${Date.now()}`);
-	await new Promise((r) => setTimeout(r, 4000));
+	await nextTick();
 	t.equal(store1Calls, 2);
 	t.equal(store2Calls, 2);
 
