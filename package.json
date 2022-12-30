@@ -1,6 +1,6 @@
 {
 	"name": "fs-nano-store",
-	"version": "0.2.8",
+	"version": "0.2.9",
 	"description": "A minimalistic, secure, type-safe, zero-dependencies, persistent data store",
 	"type": "module",
 	"main": "dist/index.js",
@@ -11,7 +11,7 @@
 		"dev": "tsup src/index.ts --format cjs,esm --splitting --clean --watch",
 		"test": "tap --no-check-coverage --reporter=specy",
 		"test:dev": "tap -w --no-check-coverage",
-		"release": "npm run build && npx standard-version --sign && git push --follow-tags origin main && npm publish --public"
+		"release": "npm run build && npm run test && npx standard-version --sign && git push --follow-tags origin main && npm publish --public"
 	},
 	"keywords": [
 		"filesystem",
