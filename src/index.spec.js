@@ -1,17 +1,16 @@
 import tap from 'tap';
-import * as fs from 'fs';
-import * as os from 'os';
-import path from 'node:path';
+import { tmpdir } from 'node:os';
+import { resolve } from 'node:path';
 import { EventEmitter } from 'node:events';
-import { defineStore } from '../dist/index.cjs';
-import { readFileSync } from 'fs';
+import { defineStore } from '../dist/index.js'; // Must import CJS module since node-tap doesn't track changes in ESM module in --watch mode
+import { readFileSync, unlinkSync } from 'node:fs';
 
 const getRandomString = () => btoa(Math.random().toString()).substring(10, 15);
 
-const storePath = path.resolve(os.tmpdir(), 'fs-nano-store', `index.spec.${Date.now()}-${getRandomString()}.json`);
+const storePath = resolve(tmpdir(), 'fs-nano-store', `index.spec.${Date.now()}-${getRandomString()}.json`);
 tap.afterEach(() => {
 	try {
-		fs.unlinkSync(storePath);
+		unlinkSync(storePath);
 	} catch (e) {
 		if (e instanceof Error && 'code' in e && e.code === 'ENOENT') {
 			return;
@@ -29,7 +28,7 @@ await tap.test('Should fail if no path', (t) =>
 );
 
 await tap.test('Should fail if invalid path', (t) =>
-	t.rejects(() => defineStore(path.resolve(os.tmpdir(), 'fs-nano-store', '\0>|[]')), {
+	t.rejects(() => defineStore(resolve(tmpdir(), 'fs-nano-store', '\0>|[]')), {
 		name: 'TypeError',
 		code: 'ERR_INVALID_ARG_VALUE',
 	})
