@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { EventEmitter } from 'node:events';
 import { defineStore } from '../dist/index.js'; // Must import CJS module since node-tap doesn't track changes in ESM module in --watch mode
-import { readFileSync, unlinkSync } from 'node:fs';
+import { readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 
 const getRandomString = () => btoa(Math.random().toString()).substring(10, 15);
 
@@ -45,6 +45,16 @@ await tap.test('Should return correct signature', async (t) => {
 
 	t.hasOwnProp(store, 'changes');
 	t.type(store.changes, EventEmitter);
+});
+
+await tap.test('Should pick up initial value', async (t) => {
+	const key = getRandomString();
+	const value = getRandomString();
+
+	writeFileSync(storePath, JSON.stringify({ [key]: value }), { encoding: 'utf8' });
+
+	const store = await defineStore(storePath);
+	t.equal(store.get(key), value);
 });
 
 await tap.test('Should save value', async (t) => {
