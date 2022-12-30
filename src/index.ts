@@ -1,8 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { type Stats, unwatchFile, watchFile } from 'node:fs';
+import { type FSWatcher, watch } from 'node:fs';
 import { EventEmitter } from 'node:events';
-import { dirname } from 'node:path';
-import { watch } from 'fs';
+import { dirname, resolve } from 'node:path';
 
 export type TNanoStoreData = Record<string, unknown>;
 export type TNanoStore<TStore extends TNanoStoreData> = {
@@ -32,6 +31,7 @@ const EVENTS = {
 	changed: 'changed',
 };
 
+// noinspection JSUnusedGlobalSymbols
 /**
  * Create persistent in-filesystem storage.
  * @param filePath path to file where all data saved
@@ -41,12 +41,43 @@ export async function defineStore<TStore extends TNanoStoreData>(
 	filePath: string,
 	{
 		serializer = JSON,
-		storeName = '', // TODO: REMOVE THIS
 	}: {
 		serializer?: NanoStoreSerializer;
-		storeName?: string; // TODO: REMOVE THIS
 	} = {}
 ): Promise<TNanoStore<TStore>> {
+	let watcher: FSWatcher | null = null;
+
+	function startWatcher() {
+		if (watcher !== null) {
+			throw new Error('File watcher already started');
+		}
+
+		try {
+			watcher = watch(filePath, { encoding: 'utf8' }, fileChangeHandler);
+		} catch (e) {
+			if (e instanceof Error && 'code' in e && e.code === 'ENOENT') {
+				// Fallback to directory watching
+				const dir = dirname(filePath);
+				watcher = watch(dir, (event, filename) => {
+					if (resolve(dir, filename) === filePath) {
+						fileChangeHandler();
+					}
+				});
+			} else {
+				throw e;
+			}
+		}
+	}
+
+	function stopWatcher() {
+		if (watcher === null) {
+			throw new Error('File watcher already stopped');
+		}
+
+		watcher.close();
+		watcher = null;
+	}
+
 	function loadFromFs(): Promise<TStore> {
 		return readFile(filePath, { encoding: 'utf8' })
 			.catch((e: unknown) => {
@@ -65,28 +96,25 @@ export async function defineStore<TStore extends TNanoStoreData>(
 	/** @public */
 	const changesEventEmitter = new EventEmitter();
 
-	async function fileChangeHandler(stat: Stats) {
-		console.log(`[${storeName}] [fileChangeHandler]`, `${filePath} CHANGED`);
-		if (!stat.isFile()) {
-			return;
-		}
-
+	async function fileChangeHandler() {
+		// HOTFIX:
+		// On Windows watcher may emit multiple events `changed` for single real change
+		// To fix it I immediately stop watcher on first event and start it after
+		stopWatcher();
 		inMemoryCachedStore = await loadFromFs();
 		changesEventEmitter.emit(EVENTS.changed);
+		startWatcher();
 	}
 
 	changesEventEmitter.addListener('newListener', (eventName: string) => {
-		console.log(`[${storeName}] newListener`, { eventName });
 		if (eventName === EVENTS.changed && changesEventEmitter.listenerCount(EVENTS.changed) === 0) {
-			console.log(`[${storeName}] START WATCH FILE`, filePath);
-			watchFile(filePath, { interval: 100 }, fileChangeHandler);
+			startWatcher();
 		}
 	});
 
 	changesEventEmitter.addListener('removeListener', (eventName: string) => {
 		if (eventName === EVENTS.changed && changesEventEmitter.listenerCount(EVENTS.changed) === 0) {
-			console.log(`[${storeName}] STOP WATCH FILE`, filePath);
-			unwatchFile(filePath, fileChangeHandler);
+			stopWatcher();
 		}
 	});
 
@@ -112,17 +140,13 @@ export async function defineStore<TStore extends TNanoStoreData>(
 		inMemoryCachedStore[key] = deepCopy(value);
 
 		if (changesEventEmitter.listenerCount(EVENTS.changed) > 0) {
-			console.log(`[${storeName}] PAUSE WATCH FILE`, filePath);
-			unwatchFile(filePath, fileChangeHandler);
+			stopWatcher();
 		}
 
 		await mkdir(dirname(filePath), { recursive: true });
 		await writeFile(filePath, serializer.stringify(inMemoryCachedStore), { encoding: 'utf8' });
 		if (changesEventEmitter.listenerCount(EVENTS.changed) > 0) {
-			console.log(`[${storeName}] AWAITING BEFORE RESUME`, filePath);
-			await new Promise((r) => setTimeout(r, 200));
-			console.log(`[${storeName}] RESUME WATCH FILE`, filePath);
-			watchFile(filePath, { interval: 100 }, fileChangeHandler);
+			startWatcher();
 		}
 	}
 
