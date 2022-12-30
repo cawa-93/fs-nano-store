@@ -119,7 +119,9 @@ export async function defineStore<TStore extends TNanoStoreData>(
 	});
 
 	function getValue<TKey extends keyof TStore>(key: TKey): TStore[TKey] {
-		return Object.hasOwn(inMemoryCachedStore, key) ? inMemoryCachedStore[key] : (undefined as any);
+		return Object.prototype.hasOwnProperty.call(inMemoryCachedStore, key)
+			? inMemoryCachedStore[key]
+			: (undefined as any);
 	}
 
 	/**
