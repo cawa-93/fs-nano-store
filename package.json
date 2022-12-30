@@ -9,7 +9,7 @@
 	"scripts": {
 		"build": "tsup src/index.ts --format cjs,esm --dts --splitting --clean --sourcemap",
 		"dev": "tsup src/index.ts --format cjs,esm --splitting --clean --watch",
-		"test": "tap --no-check-coverage --reporter=specy",
+		"test": "tap --no-check-coverage",
 		"test:dev": "tap -w --no-check-coverage",
 		"release": "npm run build && npm run test && npx standard-version --sign && git push --follow-tags origin main && npm publish --public"
 	},
