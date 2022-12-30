@@ -4,6 +4,7 @@ import * as os from 'os';
 import path from 'node:path';
 import { EventEmitter } from 'node:events';
 import { defineStore } from '../dist/index.cjs';
+import { readFileSync } from 'fs';
 
 const getRandomString = () => btoa(Math.random().toString()).substring(10, 15);
 
@@ -53,6 +54,18 @@ await tap.test('Should save value', async (t) => {
 	t.equal(store.get(key), undefined);
 	await t.resolves(store.set(key, value));
 	t.equal(store.get(key), value);
+});
+
+await tap.test('Should save state to the file system', async (t) => {
+	const store = await defineStore(storePath);
+
+	const key = getRandomString();
+	const value = getRandomString();
+
+	await t.resolves(store.set(key, value));
+
+	const content = readFileSync(storePath, { encoding: 'utf8' });
+	t.strictSame(JSON.parse(content), { [key]: value });
 });
 
 await tap.test('Should NOT save value', async (t) => {
