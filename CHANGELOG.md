@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.10](https://github.com/cawa-93/fs-nano-store/compare/v0.2.9...v0.2.10) (2022-12-31)
+
+
+### Bug Fixes
+
+* ensure path to file exist before start watcher ([beb011a](https://github.com/cawa-93/fs-nano-store/commit/beb011a8e0009de92e63667aa4a04bbffcf10102))
+* Ensure that the destination directory for the file exists ([f58997c](https://github.com/cawa-93/fs-nano-store/commit/f58997c9e33716473004dc35acc71b2c98e521f1))
+* watcher for macOS ([f2a182d](https://github.com/cawa-93/fs-nano-store/commit/f2a182db242bb1190eb4d0d1c6c60bb78c3ca79e)), closes [#5](https://github.com/cawa-93/fs-nano-store/issues/5)
+
 ### [0.2.9](https://github.com/cawa-93/fs-nano-store/compare/v0.2.8...v0.2.9) (2022-12-30)
 
 
