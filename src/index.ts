@@ -107,8 +107,8 @@ export async function defineStore<TStore extends TNanoStoreData>(
 		// To fix it I immediately stop watcher on first event and start it after if some listeners still exist
 		stopWatcher();
 		inMemoryCachedStore = await loadFromFs();
+		changesEventEmitter.emit(EVENTS.changed);
 		if (changesEventEmitter.listenerCount(EVENTS.changed) > 0) {
-			changesEventEmitter.emit(EVENTS.changed);
 			startWatcher();
 		}
 	}
