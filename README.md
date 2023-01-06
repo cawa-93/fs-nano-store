@@ -42,11 +42,14 @@ changes.addListener('changed', () => {
 ```
 
 > **Note**
-> Object are deeply cloned when saving to store. 
+> 
+> Objects in store are immutable and will be deeply cloned on each `get`/`set`. 
 > ```ts
 > const obj = {}
 > store.set('obj', obj)
-> store.get('obj') !== obj
+> store.get('obj') === obj // false
+> store.get('obj') === store.get('obj') // false
+> store.get('obj').bar = 'baz' // will no have effect
 > obj.bar = 'baz' // will not affected to stored data
 
 

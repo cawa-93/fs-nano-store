@@ -12,7 +12,7 @@ const testsTmpDir = resolve(tmpdir(), 'fs-nano-store');
 const storePath = () => resolve(testsTmpDir, 'tests', 'index', `${Date.now()}-${randomString()}.json`);
 tap.afterEach(() => {
 	try {
-		rmSync(testsTmpDir, { recursive: true });
+		rmSync(testsTmpDir, { recursive: true, force: true });
 	} catch (e) {
 		if (e instanceof Error && 'code' in e && e.code === 'ENOENT') {
 			return;
@@ -71,6 +71,34 @@ await tap.test('Should save value', async (t) => {
 	t.equal(store.get(key), undefined);
 	await t.resolves(store.set(key, value));
 	t.equal(store.get(key), value);
+});
+
+await tap.test('Value in store should be immutable', async (t) => {
+	const store = await defineStore(storePath());
+
+	const storeKey = randomString();
+	const objKey = randomString();
+	const objInitialValue = randomString();
+	const obj = { [objKey]: objInitialValue };
+
+	await store.set(storeKey, obj);
+
+	t.not(store.get(storeKey), obj, 'Object in store should not be === with initial object');
+	obj[objKey] = randomString();
+	t.equal(
+		store.get(storeKey)[objKey],
+		objInitialValue,
+		'Value in store should not be changed if original object was changed'
+	);
+
+	const loadedObj = store.get(storeKey);
+	t.not(store.get(storeKey), loadedObj, 'Object in store should not be === with loaded from store object');
+	loadedObj[objKey] = randomString();
+	t.equal(
+		store.get(storeKey)[objKey],
+		objInitialValue,
+		'Value in store should not be changed if loaded object was changed'
+	);
 });
 
 await tap.test('Should save state to the file system', async (t) => {
