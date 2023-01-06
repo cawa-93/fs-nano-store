@@ -150,9 +150,7 @@ export async function defineStore<TStore extends TNanoStoreData>(
 
 		inMemoryCachedStore[key] = deepCopyIfObject(value);
 
-		if (changesEventEmitter.listenerCount(EVENTS.changed) > 0) {
-			stopWatcher();
-		}
+		stopWatcher();
 		await writeFile(filePath, serializer.stringify(inMemoryCachedStore), { encoding: 'utf8' });
 		if (changesEventEmitter.listenerCount(EVENTS.changed) > 0) {
 			startWatcher();
