@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.11](https://github.com/cawa-93/fs-nano-store/compare/v0.2.10...v0.2.11) (2023-01-06)
+
+
+### Bug Fixes
+
+* data in store should ne immutable ([02fcc6f](https://github.com/cawa-93/fs-nano-store/commit/02fcc6fdb074e8d7da9a1a7ec3503c979a1ee8e6))
+
 ### [0.2.10](https://github.com/cawa-93/fs-nano-store/compare/v0.2.9...v0.2.10) (2022-12-31)
 
 
