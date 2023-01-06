@@ -134,10 +134,12 @@ export async function defineStore<TStore extends TNanoStoreData>(
 			? structuredClone
 			: <T>(value: T): T => serializer.parse(serializer.stringify(value));
 
+	const deepCopyIfObject = <T>(value: T): T => (typeof value === 'object' ? deepCopy(value) : value);
+
 	function getValue<TKey extends keyof TStore>(key: TKey): TStore[TKey] {
 		if (!Object.prototype.hasOwnProperty.call(inMemoryCachedStore, key)) return undefined as any;
 		const value = inMemoryCachedStore[key];
-		return typeof value === 'object' ? deepCopy(value) : value;
+		return deepCopyIfObject(value);
 	}
 
 	async function setValue<TKey extends keyof TStore>(key: TKey, value: TStore[TKey]) {
@@ -146,7 +148,7 @@ export async function defineStore<TStore extends TNanoStoreData>(
 			return;
 		}
 
-		inMemoryCachedStore[key] = typeof value === 'object' ? (Object.freeze(deepCopy(value)) as TStore[TKey]) : value;
+		inMemoryCachedStore[key] = deepCopyIfObject(value);
 
 		if (changesEventEmitter.listenerCount(EVENTS.changed) > 0) {
 			stopWatcher();
