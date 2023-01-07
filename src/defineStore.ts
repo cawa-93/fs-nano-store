@@ -1,6 +1,6 @@
-import type { TNanoStoreData } from './TNanoStoreData';
+import type { NanoStoreData } from './NanoStoreData';
 import type { NanoStoreSerializer } from './nanoStoreSerializer';
-import type { TNanoStore } from './TNanoStore';
+import type { NanoStore } from './NanoStore';
 import { readFile, writeFile } from 'node:fs/promises';
 import { createWatcher } from './createWatcher';
 
@@ -9,14 +9,14 @@ import { createWatcher } from './createWatcher';
  * @param filePath path to file where all data saved
  * @param serializer custom serializer. Default is global `JSON` object
  */
-export async function defineStore<TStore extends TNanoStoreData>(
+export async function defineStore<TStore extends NanoStoreData>(
 	filePath: string,
 	{
 		serializer = JSON,
 	}: {
 		serializer?: NanoStoreSerializer;
 	} = {}
-): Promise<TNanoStore<TStore>> {
+): Promise<NanoStore<TStore>> {
 	const {
 		start: startWatcher,
 		stop: stopWatcher,

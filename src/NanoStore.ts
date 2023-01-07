@@ -1,7 +1,7 @@
-import { TNanoStoreData } from './TNanoStoreData';
+import { NanoStoreData } from './NanoStoreData';
 import { EventEmitter } from 'node:events';
 
-export interface TNanoStore<TStore extends TNanoStoreData> {
+export type NanoStore<TStore extends NanoStoreData> = {
 	/** Return value from store by key */
 	get<TKey extends keyof TStore>(key: TKey): TStore[TKey];
 
@@ -19,4 +19,4 @@ export interface TNanoStore<TStore extends TNanoStoreData> {
 	 * Emit event `changed` when file in filesystem was changed outside current store instance.
 	 */
 	changes: EventEmitter;
-}
+};
