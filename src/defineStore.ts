@@ -1,5 +1,5 @@
 import type { NanoStoreData } from './NanoStoreData';
-import type { NanoStoreSerializer } from './nanoStoreSerializer';
+import type { NanoStoreSerializer } from './NanoStoreSerializer';
 import type { NanoStore } from './NanoStore';
 import { readFile, writeFile } from 'node:fs/promises';
 import { createWatcher } from './createWatcher';
