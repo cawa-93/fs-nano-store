@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.3.0](https://github.com/cawa-93/fs-nano-store/compare/v0.2.12...v0.3.0) (2023-02-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* Was changed how exactly data saving to filesystem. Old store files are incompatible.
+
+Previous structure:
+```
+{"key1":"val1","key2":"val2"}
+```
+
+New structure:
+```
+[["key1", "serialized val1"], ["key2", "serialized val2"]]
+```
+You can convert old data structure to new one by command:
+```
+JSON.stringify(
+  Object.entries(serializer.parse(oldData))
+  .map(([k,v]) => [k,serializer.stringify(v)])
+)
+```
+
+* using Map for internal in-memory store ([bd2dfb5](https://github.com/cawa-93/fs-nano-store/commit/bd2dfb50c92eadae68f6a12e406acf6daacd05f7))
+
 ### [0.2.12](https://github.com/cawa-93/fs-nano-store/compare/v0.2.11...v0.2.12) (2023-01-31)
 
 
