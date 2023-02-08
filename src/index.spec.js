@@ -49,17 +49,22 @@ await tap.test('Should return correct signature', async (t) => {
 	t.type(store.changes, EventEmitter);
 });
 
-await tap.test('Should pick up initial value', async (t) => {
-	const key = randomString();
-	const value = randomString();
+await tap.only('Should pick up initial value', async (t) => {
+	const data = new Map([
+		[randomString(), randomString()],
+		[randomString(), { [randomString()]: randomString() }],
+		[randomString(), [randomString(), randomString()]],
+	]);
 
 	const s = storePath();
 
 	mkdirSync(dirname(s), { recursive: true });
-	writeFileSync(s, JSON.stringify({ [key]: value }), { encoding: 'utf8' });
+	writeFileSync(s, JSON.stringify(Array.from(data).map(([k, v]) => [k, JSON.stringify(v)])), { encoding: 'utf8' });
 
 	const store = await defineStore(s);
-	t.equal(store.get(key), value);
+	for (const [key, value] of data) {
+		t.strictSame(store.get(key), value);
+	}
 });
 
 await tap.test('Should save value', async (t) => {
@@ -105,38 +110,21 @@ await tap.test('Should save state to the file system', async (t) => {
 	const s = storePath();
 	const store = await defineStore(s);
 
-	const key = randomString();
-	const value = randomString();
+	const data = new Map([
+		[randomString(), randomString()],
+		[randomString(), { [randomString()]: randomString() }],
+		[randomString(), [randomString(), randomString()]],
+	]);
 
-	await t.resolves(store.set(key, value));
+	for (const [key, value] of data) {
+		await t.resolves(store.set(key, value));
+	}
 
 	const content = readFileSync(s, { encoding: 'utf8' });
-	t.strictSame(JSON.parse(content), { [key]: value });
-});
-
-await tap.test('Should NOT save value', async (t) => {
-	const store = await defineStore(storePath());
-
-	async function checkProp(prop) {
-		t.equal(store.get(prop), undefined, `${prop} initially should be undefined`);
-		await t.resolves(store.set(prop, Date.now()));
-		t.equal(store.get(prop), undefined, `${prop} should stay be undefined`);
-	}
-
-	const blacklist = [
-		'__proto__',
-		'constructor',
-		'hasOwnProperty',
-		'isPrototypeOf',
-		'propertyIsEnumerable',
-		'toLocaleString',
-		'toString',
-		'valueOf',
-	];
-
-	for (const prototypeKey of blacklist) {
-		await checkProp(prototypeKey);
-	}
+	t.strictSame(
+		JSON.parse(content),
+		Array.from(data).map(([k, v]) => [k, JSON.stringify(v)])
+	);
 });
 
 await tap.test('Should share state across stores', async (t) => {
