@@ -49,6 +49,36 @@ await tap.test('Should return correct signature', async (t) => {
 	t.type(store.changes, EventEmitter);
 });
 
+await tap.only('Should pick up initial value from v0.2', async (t) => {
+	const data = {
+		[randomString()]: randomString(),
+		[randomString()]: [randomString(), randomString()],
+		[randomString()]: { [randomString()]: randomString() },
+	};
+
+	const s = storePath();
+
+	mkdirSync(dirname(s), { recursive: true });
+	writeFileSync(s, JSON.stringify(data), { encoding: 'utf8' });
+
+	const store = await defineStore(s);
+	for (const key in data) {
+		t.strictSame(store.get(key), data[key]);
+	}
+
+	const newVal = randomString();
+	const key = Object.keys(data)[0];
+	console.log(data[key], newVal);
+	await t.resolves(store.set(key, newVal));
+	t.strictSame(store.get(key), newVal);
+
+	const content = readFileSync(s, { encoding: 'utf8' });
+	t.strictSame(
+		JSON.parse(content),
+		Object.entries(data).map(([k, v]) => [k, JSON.stringify(key === k ? newVal : v)])
+	);
+});
+
 await tap.only('Should pick up initial value', async (t) => {
 	const data = new Map([
 		[randomString(), randomString()],

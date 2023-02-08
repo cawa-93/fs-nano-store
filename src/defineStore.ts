@@ -6,8 +6,11 @@ import { createWatcher } from './createWatcher';
 
 interface TypedMap<T extends NanoStoreData> extends Map<keyof T, T[keyof T]> {
 	set<K extends keyof T, V extends T[K]>(key: K, value: V): this;
+
 	get<K extends keyof T>(key: K): T[K];
+
 	delete<K extends keyof T>(key: K): boolean;
+
 	has<K extends keyof T>(key: K): boolean;
 }
 
@@ -53,7 +56,22 @@ export async function defineStore<TStore extends NanoStoreData>(
 
 				throw e;
 			})
-			.then((c) => (c.trim() ? _storeParse(c, serializer.parse) : (new Map() as TypedMap<TStore>)));
+			.then((c) => {
+				if (!c.trim()) {
+					return new Map() as TypedMap<TStore>;
+				}
+
+				/**
+				 * Migration for v0.2 data to v0.3 data structure
+				 */
+				c = c.trim().startsWith('{')
+					? JSON.stringify(
+							Object.entries(serializer.parse(c.trim())).map(([k, v]) => [k, serializer.stringify(v)])
+					  )
+					: c.trim();
+
+				return _storeParse(c, serializer.parse);
+			});
 	}
 
 	/** @private */
