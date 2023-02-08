@@ -74,3 +74,13 @@ const store = defineStore<Store>('store-file.json', {
 store.set('date', new Date)
 store.get('date') // Date object
 ```
+
+## Migrating from v0.2.x to v0.3.x
+In bd2dfb50c92eadae68f6a12e406acf6daacd05f7 Was changed how exactly data saving to filesystem. Old store files are incompatible.
+You must manually convert old data to new format by command:
+```js
+const newDataStr = JSON.stringify(
+  Object.entries(serializer.parse(oldDataStr))
+  .map(([k,v]) => [k,serializer.stringify(v)])  
+) 
+```
