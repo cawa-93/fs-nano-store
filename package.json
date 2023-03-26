@@ -44,7 +44,7 @@
 	],
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "18.15.9",
+		"@types/node": "18.15.10",
 		"@types/tap": "15.0.8",
 		"tap": "16.3.4",
 		"tsup": "6.7.0",
